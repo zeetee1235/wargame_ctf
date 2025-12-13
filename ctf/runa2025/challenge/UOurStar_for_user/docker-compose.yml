@@ -1,0 +1,12 @@
+services:
+  uourstar:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    environment:
+      - FLAG=runa2025{**fake_flag**}
+      - ADMINPASS=fakepass
+      - TZ=Asia/Seoul
+      - PUPPETEER_CACHE_DIR=/home/node/.cache/puppeteer
+    restart: unless-stopped
+    ports: ["5005:5000"]

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Ticket Redeemer :: CRT</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="wrap">
+  <div class="term" id="term" tabindex="0" aria-label="terminal">
+    <div class="hdr">== Ticket Redeemer v1.0 (CRT mode) ==</div>
+    <hr class="sep">
+    <div class="log" id="log">
+$ help
+  commands:
+    get       - fetch sample user token
+    redeem T  - POST token T to /redeem
+    clear     - clear screen
+    about     - show service info
+    help      - show this help
+    (tip: ↑/↓ history, Ctrl+L clear, Ctrl+G get)
+    </div>
+    <hr class="sep" />
+  </div>
+</div>
+<script src="https://unpkg.com/js-sha256@0.11.0/src/sha256.js"></script>
+<script src="{{ url_for('static', filename='js/app_editable_prompt.js') }}"></script>
+</body>
+</html>

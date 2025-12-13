@@ -1,0 +1,18 @@
+<header class="uos-header">
+  <div class="uos-container">
+    <a class="uos-brand" href="/">U, Our Star</a>
+    <nav class="uos-nav">
+      <a href="/">홈</a>
+      <a href="/post/write">글 작성</a>
+      <a href="/user/profile/<%= userinfo.username %>">내 프로필</a>
+      <% if (userinfo.username) { %>
+        <form class="uos-inline" action="/auth/logout" method="GET">
+          <input type="hidden" name="_csrf" id="csrfToken" value="<%= (csrfToken || '') %>">
+          <button type="submit" class="uos-btn uos-btn-ghost">로그아웃</button>
+        </form>
+      <% } else { %>
+        <a href="/auth/login">로그인</a>
+      <% } %>
+    </nav>
+  </div>
+</header>

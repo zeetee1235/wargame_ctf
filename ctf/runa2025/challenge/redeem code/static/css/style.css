@@ -1,0 +1,43 @@
+:root { --bg:#0a0e0a; --fg:#c1ffc1; --dim:#6fbf6f; --warn:#ff7a7a; --ok:#9aff9a; --accent:#39ff14; --mono:ui-monospace,Consolas,Menlo,monospace; }
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:14px;line-height:1.5;overflow:hidden;position:relative;}
+body::before,body::after{content:"";position:absolute;inset:0;pointer-events:none}
+body::before{background:repeating-linear-gradient(to bottom,rgba(0,255,0,.06),rgba(0,255,0,.06) 1px,transparent 2px,transparent 3px);mix-blend-mode:screen;opacity:.3}
+body::after{background:radial-gradient(ellipse at center,rgba(0,0,0,0) 50%,rgba(0,0,0,.6) 100%)}
+.wrap{height:100%;display:flex;align-items:center;justify-content:center;padding:24px}
+.term{width:min(980px,96vw);height:min(620px,90vh);border:2px solid #164d16;box-shadow:0 0 40px rgba(0,255,100,.15), inset 0 0 50px rgba(0,255,80,.06);padding:14px 18px;position:relative;overflow:auto;background:#0b120b}
+.hdr{color:var(--accent);font-weight:700;margin-bottom:6px;letter-spacing:.5px}
+.sep{border:0;border-top:1px dashed #1f6f1f;margin:8px 0}
+.muted{color:var(--dim)}
+.log{white-space:pre-wrap;word-break:break-word}
+.ok{color:var(--ok)} .err{color:var(--warn)}
+.term::-webkit-scrollbar{width:10px} .term::-webkit-scrollbar-thumb{background:#1f6f1f;border-radius:8px}
+@keyframes blink{50%{opacity:.25}}
+
+/* ... 기존 상단 스타일 유지 ... */
+
+/* === 인라인 프롬프트: 박스/테두리/배경 제거 === */
+.promptline{
+  display:flex; gap:8px; align-items:baseline;
+  margin-top:4px;            /* 간격만 남김 */
+  padding:0;                 /* 박스 느낌 제거 */
+  border:none; background:none; border-radius:0;
+  min-height:1.4em;          /* 클릭 여유 */
+  cursor:text;               /* 어디를 눌러도 타이핑 느낌 */
+}
+.ps1{
+  color:var(--accent); font-weight:700; user-select:none;
+}
+.ce{
+  flex:1; display:inline-block; min-height:1.4em;
+  outline:none; white-space:pre; cursor:text;
+  color:var(--fg); caret-color:var(--accent);
+  padding:0; margin:0;       /* 여백도 제거 */
+}
+/* 빈 줄에서만 블록 커서 깜빡임 */
+@keyframes blink{ 50%{ opacity:.25 } }
+.ce:empty::after{
+  content:"█"; color:var(--dim);
+  animation:blink 1s steps(1,end) infinite;
+}
+

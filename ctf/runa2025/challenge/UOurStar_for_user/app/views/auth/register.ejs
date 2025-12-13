@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Register · U, Our Star</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body class="uos-body auth">
+  <main class="uos-auth">
+    <form class="uos-card uos-auth-form" action="/auth/register" method="POST" autocomplete="off">
+      <h1>U, Our Star</h1>
+      <div class="uos-field">
+        <label>별명</label>
+        <input name="username" placeholder="choose an id" required>
+      </div>
+      <div class="uos-field">
+        <label>비밀번호</label>
+        <input type="password" name="password" placeholder="create a password" required>
+      </div>
+      <div class="uos-field">
+        <label>나이</label>
+        <input name="age" placeholder="20" required>
+      </div>
+      <div class="uos-field">
+        <label>MBTI</label>
+        <input name="mbti" placeholder="ISTJ" required>
+      </div>
+      <div class="uos-field">
+        <label>성별</label>
+        <input name="sex" placeholder="남 / 여" required>
+      </div>
+      <button class="uos-btn uos-btn-primary" type="submit">계정 만들기</button>
+      <p class="uos-muted">이미 회원이신가요? <a href="/auth/login">로그인</a></p>
+    </form>
+  </main>
+</body>
+</html>

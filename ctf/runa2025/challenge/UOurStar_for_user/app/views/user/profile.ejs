@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>@<%= userinfo.username %> · U, Our Star</title>
+  <link rel="stylesheet" href="/static/app.css">
+  <script defer src="/static/profile.js"></script>
+</head>
+<body class="uos-body">
+  <%- include('../partials/navbar') %>
+
+  <main class="uos-container uos-profile">
+    <section id="profile-card" class="uos-card uos-profile-card" data-theme="<%- (userinfo && userinfo.themeRaw) || '' %>">
+      <header class="uos-card-hd">
+        <div class="uos-avatar uos-avatar-lg"><span><%= userinfo.username[0]?.toUpperCase() %></span></div>
+        <div>
+          <h1>@<%= userinfo.username %></h1>
+        </div>
+        <h2> | <%= userinfo.mbti %>, <%= userinfo.age %></h2>
+      </header>
+
+      <section class="uos-card-body">
+        <h2>한 줄 소개</h2>
+        <div class="uos-bio"><%- (userinfo && userinfo.bioRaw) || '' %></div>
+      </section>
+
+      <% if (isOwner) { %>
+      <form id="editForm" class="uos-card-body" action="/user/profile/<%= userinfo.username %>" method="POST" autocomplete="off">
+        <input type="hidden" id="csrfToken" name="_csrf" value="<%= (csrfToken || '') %>">
+
+        <div class="uos-field">
+          <label>한 줄 소개</label>
+          <textarea name="bio" rows="5" placeholder="<em>Write your bio with HTML…</em>"><%= (userinfo && userinfo.bioRaw) || '' %></textarea>
+        </div>
+
+        <div class="uos-field">
+          <label>스타일</label>
+          <input name="theme" value="<%= (userinfo && userinfo.themeRaw) || '' %>">
+          <p class="uos-hint">예시: <code>color:red;</code></p>
+        </div>
+
+        <div class="uos-actions">
+          <button type="button" class="uos-btn uos-btn-primary" id="editBtn">수정</button>
+          <button type="submit" class="uos-btn uos-btn-primary" id="saveBtn" hidden>저장</button>
+          <button type="button" class="uos-btn uos-btn-ghost" id="cancelBtn" hidden>취소</button>
+        </div>
+      </form>
+      <% } %>
+
+      <% if (isAdmin) { %>
+      <section class="uos-card-body">
+        <h2>Admin Controls</h2>
+        <form id="adminForm" action="/admin/blind" method="POST" class="uos-inline">
+          <input type="hidden" id="csrfToken" name="_csrf" value="<%= (csrfToken || '') %>">
+          <button id="copyProfileBtn" name="copyProfileBtn" type="submit" class="uos-btn uos-btn-danger">프로필 스크린샷</button>
+        </form>
+      </section>
+      <% } %>
+  </main>
+</body>
+</html>

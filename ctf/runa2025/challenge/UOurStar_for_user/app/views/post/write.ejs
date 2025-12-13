@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Write · U, Our Star</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body class="uos-body">
+  <%- include('../partials/navbar') %>
+
+  <main class="uos-container uos-write">
+    <form class="uos-card" action="/post/write" method="POST">
+      <h1>새 글 작성</h1>
+
+      <div class="uos-field">
+        <label>제목</label>
+        <input name="title" placeholder="What’s happening?" required maxlength="80">
+      </div>
+
+      <div class="uos-field">
+        <label>내용</label>
+        <textarea name="content" rows="6" placeholder="Write something nice…" required></textarea>
+      </div>
+
+      <!-- Intentionally predictable for the challenge. GOOD LUCK! -->
+      <input type="hidden" id="csrfToken" name="_csrf" value="<%= (csrfToken || '') %>">
+
+      <div class="uos-actions">
+        <button class="uos-btn uos-btn-primary" type="submit">작성하기</button>
+      </div>
+    </form>
+  </main>
+</body>
+</html>

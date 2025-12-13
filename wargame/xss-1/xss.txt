@@ -1,0 +1,5 @@
+<script>
+fetch('/flag')
+  .then(r => r.text())
+  .then(flag => console.log(flag));
+</script>

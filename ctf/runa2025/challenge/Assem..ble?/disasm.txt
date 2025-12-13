@@ -1,0 +1,95 @@
+
+prob:     file format elf64-x86-64
+
+
+Disassembly of section .text:
+
+0000000000401000 <.text>:
+  401000:	5f                   	pop    %rdi
+  401001:	48 83 ff 02          	cmp    $0x2,%rdi
+  401005:	0f 8c e7 00 00 00    	jl     0x4010f2
+  40100b:	5e                   	pop    %rsi
+  40100c:	5b                   	pop    %rbx
+  40100d:	48 31 c9             	xor    %rcx,%rcx
+  401010:	48 89 da             	mov    %rbx,%rdx
+  401013:	80 3c 0a 00          	cmpb   $0x0,(%rdx,%rcx,1)
+  401017:	74 05                	je     0x40101e
+  401019:	48 ff c1             	inc    %rcx
+  40101c:	eb f5                	jmp    0x401013
+  40101e:	49 89 cd             	mov    %rcx,%r13
+  401021:	e8 29 00 00 00       	call   0x40104f
+  401026:	45 85 f6             	test   %r14d,%r14d
+  401029:	0f 85 c3 00 00 00    	jne    0x4010f2
+  40102f:	b8 01 00 00 00       	mov    $0x1,%eax
+  401034:	bf 01 00 00 00       	mov    $0x1,%edi
+  401039:	48 be a4 21 40 00 00 	movabs $0x4021a4,%rsi
+  401040:	00 00 00 
+  401043:	ba 09 00 00 00       	mov    $0x9,%edx
+  401048:	0f 05                	syscall
+  40104a:	e9 be 00 00 00       	jmp    0x40110d
+  40104f:	4d 31 e4             	xor    %r12,%r12
+  401052:	45 31 f6             	xor    %r14d,%r14d
+  401055:	4d 39 ec             	cmp    %r13,%r12
+  401058:	7d 19                	jge    0x401073
+  40105a:	4a 0f b6 04 23       	movzbq (%rbx,%r12,1),%rax
+  40105f:	e8 10 00 00 00       	call   0x401074
+  401064:	e8 4f 00 00 00       	call   0x4010b8
+  401069:	e8 51 00 00 00       	call   0x4010bf
+  40106e:	49 ff c4             	inc    %r12
+  401071:	eb e2                	jmp    0x401055
+  401073:	c3                   	ret
+  401074:	45 30 c0             	xor    %r8b,%r8b
+  401077:	a8 01                	test   $0x1,%al
+  401079:	74 04                	je     0x40107f
+  40107b:	41 80 c8 20          	or     $0x20,%r8b
+  40107f:	a8 02                	test   $0x2,%al
+  401081:	74 04                	je     0x401087
+  401083:	41 80 c8 40          	or     $0x40,%r8b
+  401087:	a8 04                	test   $0x4,%al
+  401089:	74 04                	je     0x40108f
+  40108b:	41 80 c8 80          	or     $0x80,%r8b
+  40108f:	a8 08                	test   $0x8,%al
+  401091:	74 04                	je     0x401097
+  401093:	41 80 c8 01          	or     $0x1,%r8b
+  401097:	a8 10                	test   $0x10,%al
+  401099:	74 04                	je     0x40109f
+  40109b:	41 80 c8 02          	or     $0x2,%r8b
+  40109f:	a8 20                	test   $0x20,%al
+  4010a1:	74 04                	je     0x4010a7
+  4010a3:	41 80 c8 04          	or     $0x4,%r8b
+  4010a7:	a8 40                	test   $0x40,%al
+  4010a9:	74 04                	je     0x4010af
+  4010ab:	41 80 c8 08          	or     $0x8,%r8b
+  4010af:	a8 80                	test   $0x80,%al
+  4010b1:	74 04                	je     0x4010b7
+  4010b3:	41 80 c8 10          	or     $0x10,%r8b
+  4010b7:	c3                   	ret
+  4010b8:	45 30 e8             	xor    %r13b,%r8b
+  4010bb:	45 00 e8             	add    %r13b,%r8b
+  4010be:	c3                   	ret
+  4010bf:	41 52                	push   %r10
+  4010c1:	41 53                	push   %r11
+  4010c3:	50                   	push   %rax
+  4010c4:	4c 89 e0             	mov    %r12,%rax
+  4010c7:	48 c1 e8 04          	shr    $0x4,%rax
+  4010cb:	48 8d 44 00 01       	lea    0x1(%rax,%rax,1),%rax
+  4010d0:	4c 8d 1d 3d 10 00 00 	lea    0x103d(%rip),%r11        # 0x402114
+  4010d7:	4d 8b 14 c3          	mov    (%r11,%rax,8),%r10
+  4010db:	44 89 e0             	mov    %r12d,%eax
+  4010de:	83 e0 0f             	and    $0xf,%eax
+  4010e1:	45 0f b6 1c 02       	movzbl (%r10,%rax,1),%r11d
+  4010e6:	45 31 d8             	xor    %r11d,%r8d
+  4010e9:	45 09 c6             	or     %r8d,%r14d
+  4010ec:	58                   	pop    %rax
+  4010ed:	41 5b                	pop    %r11
+  4010ef:	41 5a                	pop    %r10
+  4010f1:	c3                   	ret
+  4010f2:	b8 01 00 00 00       	mov    $0x1,%eax
+  4010f7:	bf 01 00 00 00       	mov    $0x1,%edi
+  4010fc:	48 be ad 21 40 00 00 	movabs $0x4021ad,%rsi
+  401103:	00 00 00 
+  401106:	ba 0b 00 00 00       	mov    $0xb,%edx
+  40110b:	0f 05                	syscall
+  40110d:	b8 3c 00 00 00       	mov    $0x3c,%eax
+  401112:	48 31 ff             	xor    %rdi,%rdi
+  401115:	0f 05                	syscall

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login · U, Our Star</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body class="uos-body auth">
+  <main class="uos-auth">
+    <form class="uos-card uos-auth-form" action="/auth/login" method="POST" autocomplete="off">
+      <h1>U, Our Star</h1>
+      <div class="uos-field">
+        <label>별명</label>
+        <input name="username" required>
+      </div>
+      <div class="uos-field">
+        <label>비밀번호</label>
+        <input type="password" name="password" placeholder="••••••••" required>
+      </div>
+      <button class="uos-btn uos-btn-primary" type="submit">로그인</button>
+      <p class="uos-muted">처음이신가요? <a href="/auth/register">계정 만들기</a></p>
+    </form>
+  </main>
+</body>
+</html>

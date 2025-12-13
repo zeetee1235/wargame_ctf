@@ -1,0 +1,13 @@
+version: "3.9"
+services:
+  web:
+    build: .
+    image: 1_ticket-redeemer:latest
+    container_name: 1_ticket-redeemer
+    ports:
+      - "6001:6001"
+    restart: unless-stopped
+    environment:
+      - FLAG_PATH=/app/flag
+    volumes:
+      - ./flag:/app/flag:ro   # ← 호스트의 flag를 읽기전용으로 마운트

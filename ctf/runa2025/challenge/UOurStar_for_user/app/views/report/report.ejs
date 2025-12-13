@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>불편사항 접수 · U, Our Star</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body class="uos-body">
+  <%- include('../partials/navbar') %>
+
+  <main class="uos-container">
+    <article class="uos-card" style="max-width:640px;margin:24px auto;">
+      <header class="uos-card-hd">
+        <div class="uos-avatar"><span>!</span></div>
+        <div>
+          <h1 style="margin:0;">불량 유저 신고</h1>
+          <p class="uos-muted" style="margin:.25rem 0 0 0;">검토 후 연락 드릴게요.</p>
+        </div>
+      </header>
+
+      <% if (typeof message !== 'undefined' && message) { %>
+        <div class="uos-card-body">
+          <p class="uos-muted"><%= message %></p>
+        </div>
+      <% } %>
+
+      <form class="uos-card-body" action="/report" method="POST" autocomplete="off">
+        <input type="hidden" name="_csrf" value="<%= csrfToken || '' %>">
+        <div class="uos-field">
+          <label for="username"></label>
+          <input id="username" name="username" placeholder="유저 이름을 입력해 주세요." value="">
+        </div>
+
+        <div class="uos-actions" style="justify-content:flex-end;">
+          <a class="uos-btn uos-btn-ghost" href="/">취소</a>
+          <button class="uos-btn uos-btn-primary" type="submit">접수하기</button>
+        </div>
+      </form>
+    </article>
+  </main>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Feed · U, Our Star</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body class="uos-body">
+  <%- include('../partials/navbar') %>
+
+  <main class="uos-container uos-feed">
+    <h1 class="uos-hidden">피드</h1>
+
+    <div class="uos-grid">
+      <% if (posts) { %>
+        <% for (const post of posts.values()) { %>
+          <article class="uos-card">
+            <header class="uos-card-hd">
+              <div class="uos-avatar"><span><%= post.author[0]?.toUpperCase() %></span></div>
+              <div class="uos-author">
+                <a href="/user/profile/<%= post.author %>">@<%= post.author %></a>
+              </div>
+            </header>
+            <section class="uos-card-body">
+              <h2 class="uos-post-title"><a href="/post/<%= post.postId %>"><%= post.title %></a></h2>
+              <% if (post.isPrivate) { %>
+                <p class="uos-post-private uos-muted">[비공개]</p>
+              <% } else { %>
+              <p class="uos-post-text"><%= post.content && post.content.length > 30 ? 
+                post.content.slice(0, 30) + '...' : post.content %></p>
+              <% } %>
+            </section>
+          </article>
+        <% } %>
+      <% } else { %>
+        <p class="uos-empty">아직 게시글이 없어요.</p>
+      <% } %>
+      <a href="/report" class="uos-fab uos-report-fab" title="불량 유저 신고" aria-label="불량 유저 신고">
+        <span class="uos-icon">!</span>
+        <span class="uos-fab-label">불량 유저 신고</span>
+      </a>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Error · U, Our Star</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body class="uos-body">
+  <main class="uos-container uos-error">
+    <article class="uos-card">
+      <h1><%= status || 500 %></h1>
+      <p class="uos-muted"><%= message || ':(' %></p>
+      <a class="uos-btn uos-btn-primary" href="/">홈으로</a>
+    </article>
+  </main>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= post.title %> · U, Our Star</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body class="uos-body">
+  <%- include('../partials/navbar') %>
+
+  <main class="uos-container">
+    <article class="uos-card uos-post">
+      <header class="uos-card-hd">
+        <div class="uos-avatar"><span><%= post.author[0]?.toUpperCase() %></span></div>
+        <div class="uos-author">
+          <a href="/user/profile/<%= post.author %>">@<%= post.author %></a>
+        </div>
+      </header>
+      <section class="uos-card-body">
+        <h1 class="uos-post-title"><%= post.title %></h1>
+        <p class="uos-post-text"><%= post.content %></p>
+      </section>
+    </article>
+  </main>
+</body>
+</html>
