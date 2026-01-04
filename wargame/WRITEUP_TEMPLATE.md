@@ -3,8 +3,6 @@
 ## 문제 정보
 - **난이도**: Easy/Medium/Hard
 - **카테고리**: Web/PWN/Reversing/Crypto/Misc
-- **포인트**: 
-- **풀이 시간**: 
 
 ## 문제 설명
 ```
